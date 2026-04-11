@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from '@tanstack/react-router';
 import { 
   ClipboardCheck, 
   MapPin, 
@@ -12,7 +13,11 @@ import {
   FileText,
   CheckCircle2,
   AlertCircle,
-  ChevronRight
+  ChevronRight,
+  Database,
+  Layout,
+  LogOut,
+  LayoutDashboard
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -28,11 +33,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 
 import { WELL_SITES, CHECKLIST_ITEMS } from './constants';
 import { InspectionState } from './types';
+import { ConnectivityIndicator } from '@/src/components/ConnectivityIndicator';
+import { useAppStore } from './stores/appStore';
 
 export default function App() {
+  const navigate = useNavigate();
+  const { organizationName, currentUser, logout } = useAppStore();
+  const isSupervisor = currentUser?.role === 'supervisor' || currentUser?.role === 'admin';
+
   const [state, setState] = useState<InspectionState>({
     wellSite: '',
-    inspectorName: '',
+    inspectorName: currentUser?.name || '',
     timestamp: new Date().toLocaleString(),
     checks: CHECKLIST_ITEMS.reduce((acc, item) => {
       acc[item.id] = { checked: false, notes: '' };
@@ -49,7 +60,7 @@ export default function App() {
       ...prev,
       checks: {
         ...prev.checks,
-        [id]: { ...prev.checks[id], checked }
+        [id]: { checked, notes: prev.checks[id]?.notes ?? '' }
       }
     }));
   };
@@ -59,15 +70,16 @@ export default function App() {
       ...prev,
       checks: {
         ...prev.checks,
-        [id]: { ...prev.checks[id], notes }
+        [id]: { checked: prev.checks[id]?.checked ?? false, notes }
       }
     }));
   };
 
   const progress = useMemo(() => {
     const total = CHECKLIST_ITEMS.length;
-    const checksArray = Object.values(state.checks) as { checked: boolean; notes: string }[];
-    const completed = checksArray.filter(c => c.checked).length;
+    if (total === 0) return 0;
+    const checksArray = Object.values(state.checks);
+    const completed = checksArray.filter(c => c?.checked).length;
     return Math.round((completed / total) * 100);
   }, [state.checks]);
 
@@ -78,24 +90,74 @@ export default function App() {
     Production: <BarChart3 className="w-5 h-5 text-amber-500" />
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate({ to: '/login' });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
       {/* Dark Header */}
       <header className="bg-slate-900 text-white py-6 px-4 shadow-lg sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg">
               <ClipboardCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Well Site Inspection</h1>
-              <p className="text-slate-400 text-xs uppercase tracking-widest font-medium">Daily Operations Log</p>
+              <h1 className="text-xl font-bold tracking-tight">Daily Operations Log</h1>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest leading-tight">
+                {organizationName || 'Field Operations'}
+              </p>
             </div>
           </div>
-          <div className="text-right hidden sm:block">
-            <div className="flex items-center gap-2 text-slate-300 text-sm justify-end">
-              <Clock className="w-4 h-4" />
-              <span>{state.timestamp}</span>
+          <div className="text-right flex flex-col items-end gap-2">
+            <div className="flex items-center gap-2">
+              {isSupervisor && (
+                <Button 
+                  variant="outline" 
+                  size="xs" 
+                  className="bg-transparent border-blue-900 text-blue-400 hover:bg-blue-900/50 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                  onClick={() => navigate({ to: '/dashboard' })}
+                >
+                  <LayoutDashboard className="w-3 h-3 mr-1" />
+                  Dashboard
+                </Button>
+              )}
+              <Button 
+                variant="outline" 
+                size="xs" 
+                className="bg-transparent border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                onClick={() => navigate({ to: '/templates' })}
+              >
+                <Layout className="w-3 h-3 mr-1" />
+                Templates
+              </Button>
+              <Button 
+                variant="outline" 
+                size="xs" 
+                className="bg-transparent border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                onClick={() => navigate({ to: '/wells' })}
+              >
+                <Database className="w-3 h-3 mr-1" />
+                Wells
+              </Button>
+              <Button 
+                variant="outline" 
+                size="xs" 
+                className="bg-transparent border-red-900/50 text-red-400 hover:bg-red-950 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-3 h-3 mr-1" />
+                Logout
+              </Button>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                <User className="w-3 h-3" />
+                <span>{currentUser?.name} ({currentUser?.role})</span>
+              </div>
+              <ConnectivityIndicator />
             </div>
           </div>
         </div>
@@ -114,7 +176,7 @@ export default function App() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="well-site" className="text-xs font-bold uppercase text-slate-500 tracking-wider">Well Site</Label>
-                <Select onValueChange={(val) => setState(prev => ({ ...prev, wellSite: val }))}>
+                <Select onValueChange={(val) => setState(prev => ({ ...prev, wellSite: typeof val === 'string' ? val : '' }))}>
                   <SelectTrigger id="well-site" className="bg-slate-50 border-slate-200">
                     <SelectValue placeholder="Select a well site" />
                   </SelectTrigger>
@@ -139,9 +201,14 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div className="sm:hidden flex items-center gap-2 text-slate-500 text-xs pt-2">
-              <Clock className="w-3 h-3" />
-              <span>{state.timestamp}</span>
+            <div className="flex items-center justify-between text-slate-500 text-xs pt-2">
+              <div className="flex items-center gap-2">
+                <Clock className="w-3 h-3" />
+                <span>{state.timestamp}</span>
+              </div>
+              <div className="font-bold text-blue-600 text-[10px] uppercase tracking-widest">
+                Tenant: {useAppStore.getState().tenantId}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -163,7 +230,7 @@ export default function App() {
         </div>
 
         {/* Checklist Categories */}
-        <Accordion type="multiple" defaultValue={['Safety']} className="space-y-4">
+        <Accordion defaultValue={['Safety']} className="space-y-4">
           {categories.map((category) => (
             <AccordionItem key={category} value={category} className="border-none">
               <Card className="border-none shadow-sm overflow-hidden">
@@ -180,41 +247,44 @@ export default function App() {
                 </AccordionTrigger>
                 <AccordionContent className="px-6 pb-6 pt-2">
                   <div className="space-y-6">
-                    {CHECKLIST_ITEMS.filter(i => i.category === category).map((item) => (
-                      <div key={item.id} className="space-y-3">
-                        <div className="flex items-start gap-3">
-                          <Checkbox 
-                            id={item.id} 
-                            className="mt-1"
-                            checked={state.checks[item.id].checked}
-                            onCheckedChange={(checked) => handleCheckChange(item.id, !!checked)}
-                          />
-                          <Label 
-                            htmlFor={item.id} 
-                            className={`text-sm leading-tight cursor-pointer transition-colors ${state.checks[item.id].checked ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
-                          >
-                            {item.label}
-                          </Label>
-                        </div>
-                        <AnimatePresence>
-                          {state.checks[item.id].checked && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="pl-7 overflow-hidden"
+                    {CHECKLIST_ITEMS.filter(i => i.category === category).map((item) => {
+                      const itemCheck = state.checks[item.id] ?? { checked: false, notes: '' };
+                      return (
+                        <div key={item.id} className="space-y-3">
+                          <div className="flex items-start gap-3">
+                            <Checkbox
+                              id={item.id}
+                              className="mt-1"
+                              checked={itemCheck.checked}
+                              onCheckedChange={(checked) => handleCheckChange(item.id, !!checked)}
+                            />
+                            <Label
+                              htmlFor={item.id}
+                              className={`text-sm leading-tight cursor-pointer transition-colors ${itemCheck.checked ? 'text-slate-400 line-through' : 'text-slate-700 font-medium'}`}
                             >
-                              <Textarea 
-                                placeholder="Add notes (optional)..." 
-                                className="text-xs bg-slate-50 border-slate-200 min-h-[60px] resize-none"
-                                value={state.checks[item.id].notes}
-                                onChange={(e) => handleNoteChange(item.id, e.target.value)}
-                              />
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    ))}
+                              {item.label}
+                            </Label>
+                          </div>
+                          <AnimatePresence>
+                            {itemCheck.checked && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="pl-7 overflow-hidden"
+                              >
+                                <Textarea
+                                  placeholder="Add notes (optional)..."
+                                  className="text-xs bg-slate-50 border-slate-200 min-h-[60px] resize-none"
+                                  value={itemCheck.notes}
+                                  onChange={(e) => handleNoteChange(item.id, e.target.value)}
+                                />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      );
+                    })}
                   </div>
                 </AccordionContent>
               </Card>
@@ -277,8 +347,8 @@ export default function App() {
             <div className="space-y-4">
               {categories.map(category => {
                 const items = CHECKLIST_ITEMS.filter(i => i.category === category);
-                const checkedItems = items.filter(i => state.checks[i.id].checked);
-                
+                const checkedItems = items.filter(i => state.checks[i.id]?.checked);
+
                 if (checkedItems.length === 0) return null;
 
                 return (
@@ -288,16 +358,19 @@ export default function App() {
                       {category}
                     </h3>
                     <div className="space-y-2 pl-7">
-                      {checkedItems.map(item => (
-                        <div key={item.id} className="text-sm border-l-2 border-slate-100 pl-3 py-1">
-                          <p className="text-slate-700 font-medium">{item.label}</p>
-                          {state.checks[item.id].notes && (
-                            <p className="text-xs text-slate-500 italic mt-1">
-                              " {state.checks[item.id].notes} "
-                            </p>
-                          )}
-                        </div>
-                      ))}
+                      {checkedItems.map(item => {
+                        const c = state.checks[item.id];
+                        return (
+                          <div key={item.id} className="text-sm border-l-2 border-slate-100 pl-3 py-1">
+                            <p className="text-slate-700 font-medium">{item.label}</p>
+                            {c?.notes && (
+                              <p className="text-xs text-slate-500 italic mt-1">
+                                " {c.notes} "
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -310,7 +383,7 @@ export default function App() {
                 <div>
                   <p className="text-sm font-bold text-amber-800">Incomplete Inspection</p>
                   <p className="text-xs text-amber-700">
-                    {CHECKLIST_ITEMS.length - (Object.values(state.checks) as { checked: boolean; notes: string }[]).filter(c => c.checked).length} items were not verified during this session.
+                    {CHECKLIST_ITEMS.length - Object.values(state.checks).filter(c => c?.checked).length} items were not verified during this session.
                   </p>
                 </div>
               </div>
