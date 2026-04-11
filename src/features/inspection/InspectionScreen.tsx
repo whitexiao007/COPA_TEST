@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { useParams, useNavigate } from '@tanstack/react-router';
-import { ChevronLeft, Check, X as XIcon, Minus, AlertCircle, Save } from 'lucide-react';
+import { ChevronLeft, Check, X as XIcon, Minus, AlertCircle, Save, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 import { db, type Well, type Template, type Inspection, type InspectionItem } from '@/src/db/schema';
@@ -9,9 +9,13 @@ import { useAppStore } from '@/src/stores/appStore';
 import { WellTypeBadge } from '@/src/features/wells/WellTypeBadge';
 import { usePhotoCapture } from '@/src/hooks/usePhotoCapture';
 import { PhotoThumbnails } from './PhotoThumbnails';
+import { getRecurringIssueIds } from '../history/recurringIssues';
+import { DiagnosticPanel } from './DiagnosticPanel';
+import { getApplicableRules } from './diagnostics';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Input } from '@/components/ui/input';
@@ -47,6 +51,42 @@ export default function InspectionScreen() {
     },
     [well, tenantId]
   );
+
+  const lastInspections = useLiveQuery(
+    async () => {
+      if (!wellId) return [];
+      return db.inspections
+        .where('wellId')
+        .equals(Number(wellId))
+        .reverse()
+        .limit(5)
+        .toArray();
+    },
+    [wellId]
+  );
+
+  const lastItemsByInspection = useLiveQuery(
+    async () => {
+      if (!lastInspections) return [];
+      const result: InspectionItem[][] = [];
+      for (const ins of lastInspections) {
+        if (ins.id) {
+          const items = await db.inspectionItems
+            .where('inspectionId')
+            .equals(ins.id)
+            .toArray();
+          result.push(items);
+        }
+      }
+      return result;
+    },
+    [lastInspections]
+  );
+
+  const recurringIssueIds = useMemo(() => {
+    if (!lastItemsByInspection) return new Set<string>();
+    return getRecurringIssueIds(lastItemsByInspection, 3);
+  }, [lastItemsByInspection]);
 
   const [itemsState, setItemsState] = useState<Record<string, ItemState>>({});
 
@@ -103,6 +143,16 @@ export default function InspectionScreen() {
     }));
   };
 
+  const handleDiagnosticChange = (itemId: string, data: Record<string, string>) => {
+    setItemsState(prev => ({
+      ...prev,
+      [itemId]: {
+        ...prev[itemId]!,
+        conditionalData: data
+      }
+    }));
+  };
+
   const handleComplete = async () => {
     if (!well || !template) return;
 
@@ -146,7 +196,7 @@ export default function InspectionScreen() {
       });
     });
 
-    navigate({ to: `/wells` }); // Or to history if implemented
+    navigate({ to: `/history/${well.id}` });
   };
 
   if (!well || !template) {
@@ -226,10 +276,35 @@ export default function InspectionScreen() {
                       return (
                         <div key={item.id} className="space-y-4">
                           <div className="flex flex-col gap-3">
-                            <Label className={`text-sm leading-snug font-semibold ${state.status !== 'pending' ? 'text-slate-900' : 'text-slate-700'}`}>
-                              {item.label}
-                              {item.required && <span className="text-red-500 ml-1">*</span>}
-                            </Label>
+                            <div className="flex justify-between items-start gap-2">
+                              <Label className={`text-sm leading-snug font-semibold flex-1 ${state.status !== 'pending' ? 'text-slate-900' : 'text-slate-700'}`}>
+                                {item.label}
+                                {item.required && <span className="text-red-500 ml-1">*</span>}
+                              </Label>
+                              {recurringIssueIds.has(item.id) && (
+                                <Badge variant="destructive" className="text-[9px] uppercase tracking-tighter px-1.5 h-4 flex items-center gap-0.5 shrink-0">
+                                  <AlertTriangle className="w-2.5 h-2.5" /> Recurring
+                                </Badge>
+                              )}
+                            </div>
+
+                            {/* History Dots */}
+                            {lastItemsByInspection && lastItemsByInspection.length > 0 && (
+                              <div className="flex gap-1 mb-1">
+                                {lastItemsByInspection.map((items, idx) => {
+                                  const histItem = items.find(i => i.templateItemId === item.id);
+                                  const status = histItem?.status || 'pending';
+                                  const color = status === 'pass' ? 'bg-green-500' : status === 'fail' ? 'bg-red-500' : 'bg-slate-300';
+                                  return (
+                                    <div 
+                                      key={idx} 
+                                      className={`w-1.5 h-1.5 rounded-full ${color}`} 
+                                      title={status}
+                                    />
+                                  );
+                                })}
+                              </div>
+                            )}
 
                             <div className="flex gap-2">
                               <Button
@@ -288,7 +363,16 @@ export default function InspectionScreen() {
                                   />
                                 </div>
 
-                                {item.hasConditional && state.status === 'fail' && item.conditional && (
+                                {state.status === 'fail' && (well.wellType === 'esp' || well.wellType === 'rod_pump') && getApplicableRules(well.wellType, item.id) && (
+                                  <DiagnosticPanel 
+                                    wellType={well.wellType} 
+                                    templateItemId={item.id} 
+                                    data={state.conditionalData} 
+                                    onChange={(data) => handleDiagnosticChange(item.id, data)}
+                                  />
+                                )}
+
+                                {item.hasConditional && state.status === 'fail' && item.conditional && !getApplicableRules(well.wellType, item.id) && (
                                   <div className="bg-red-50 p-4 rounded-xl border border-red-100 space-y-4">
                                     <p className="text-xs font-bold text-red-800 uppercase tracking-tight">Conditional Requirements</p>
                                     {item.conditional.subItems.map(sub => (

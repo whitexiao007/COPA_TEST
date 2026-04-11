@@ -15,6 +15,7 @@ import { initNetworkListeners } from './stores/appStore';
 
 import TemplateBuilderScreen from './features/templates/TemplateBuilderScreen';
 import InspectionScreen from './features/inspection/InspectionScreen';
+import HistoryScreen from './features/history/HistoryScreen';
 
 // Initialize network listeners
 initNetworkListeners();
@@ -52,11 +53,18 @@ const inspectionRoute = createRoute({
   component: InspectionScreen,
 });
 
+const historyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/history/$wellId',
+  component: HistoryScreen,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute, 
   wellsRoute, 
   templatesRoute, 
-  inspectionRoute
+  inspectionRoute,
+  historyRoute
 ]);
 
 const router = createRouter({ routeTree });
