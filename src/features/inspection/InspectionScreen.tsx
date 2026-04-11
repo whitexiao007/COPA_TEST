@@ -12,6 +12,7 @@ import { PhotoThumbnails } from './PhotoThumbnails';
 import { getRecurringIssueIds } from '../history/recurringIssues';
 import { DiagnosticPanel } from './DiagnosticPanel';
 import { getApplicableRules } from './diagnostics';
+import { WellStatusCard } from '@/src/features/inspection/WellStatusCard';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -249,6 +250,8 @@ export default function InspectionScreen() {
             />
           </div>
         </div>
+
+        <WellStatusCard wellId={well.id!} />
 
         <Accordion defaultValue={[template.categories[0]?.id || '']} multiple className="space-y-4">
           {template.categories.map((category) => (

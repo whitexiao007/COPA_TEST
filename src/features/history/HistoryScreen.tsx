@@ -5,6 +5,7 @@ import { ChevronLeft, AlertCircle, CheckCircle2, XCircle, MinusCircle, History, 
 import { db, type InspectionItem } from '@/src/db/schema';
 import { WellTypeBadge } from '@/src/features/wells/WellTypeBadge';
 import { getRecurringIssueIds } from './recurringIssues';
+import { PDFReportButton } from '@/src/features/pdf/PDFReportButton';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -196,17 +197,22 @@ export default function HistoryScreen() {
                 <AccordionItem key={ins.id} value={String(ins.id)} className="border-none">
                   <Card className="border-none shadow-sm overflow-hidden">
                     <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-slate-50 transition-colors">
-                      <div className="flex flex-col items-start text-left gap-1">
-                        <span className="text-sm font-bold text-slate-800">
-                          {formatDate(ins.startedAt)}
-                        </span>
-                        <div className="flex items-center gap-3 text-[11px] text-slate-500 font-medium">
-                          <span className="flex items-center gap-1">
-                            By {ins.inspectorName}
+                      <div className="flex justify-between items-center w-full pr-4">
+                        <div className="flex flex-col items-start text-left gap-1">
+                          <span className="text-sm font-bold text-slate-800">
+                            {formatDate(ins.startedAt)}
                           </span>
-                          <span className="flex items-center gap-1">
-                            {progress}% Pass Rate
-                          </span>
+                          <div className="flex items-center gap-3 text-[11px] text-slate-500 font-medium">
+                            <span className="flex items-center gap-1">
+                              By {ins.inspectorName}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              {progress}% Pass Rate
+                            </span>
+                          </div>
+                        </div>
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <PDFReportButton inspectionId={ins.id!} />
                         </div>
                       </div>
                     </AccordionTrigger>
