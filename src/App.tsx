@@ -15,7 +15,9 @@ import {
   AlertCircle,
   ChevronRight,
   Database,
-  Layout
+  Layout,
+  LogOut,
+  LayoutDashboard
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -32,12 +34,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { WELL_SITES, CHECKLIST_ITEMS } from './constants';
 import { InspectionState } from './types';
 import { ConnectivityIndicator } from '@/src/components/ConnectivityIndicator';
+import { useAppStore } from './stores/appStore';
 
 export default function App() {
   const navigate = useNavigate();
+  const { organizationName, currentUser, logout } = useAppStore();
+  const isSupervisor = currentUser?.role === 'supervisor' || currentUser?.role === 'admin';
+
   const [state, setState] = useState<InspectionState>({
     wellSite: '',
-    inspectorName: '',
+    inspectorName: currentUser?.name || '',
     timestamp: new Date().toLocaleString(),
     checks: CHECKLIST_ITEMS.reduce((acc, item) => {
       acc[item.id] = { checked: false, notes: '' };
@@ -84,22 +90,40 @@ export default function App() {
     Production: <BarChart3 className="w-5 h-5 text-amber-500" />
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate({ to: '/login' });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
       {/* Dark Header */}
       <header className="bg-slate-900 text-white py-6 px-4 shadow-lg sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto flex items-center justify-between">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-lg">
               <ClipboardCheck className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Well Site Inspection</h1>
-              <p className="text-slate-400 text-xs uppercase tracking-widest font-medium">Daily Operations Log</p>
+              <h1 className="text-xl font-bold tracking-tight">Daily Operations Log</h1>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest leading-tight">
+                {organizationName || 'Field Operations'}
+              </p>
             </div>
           </div>
           <div className="text-right flex flex-col items-end gap-2">
             <div className="flex items-center gap-2">
+              {isSupervisor && (
+                <Button 
+                  variant="outline" 
+                  size="xs" 
+                  className="bg-transparent border-blue-900 text-blue-400 hover:bg-blue-900/50 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                  onClick={() => navigate({ to: '/dashboard' })}
+                >
+                  <LayoutDashboard className="w-3 h-3 mr-1" />
+                  Dashboard
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 size="xs" 
@@ -118,12 +142,23 @@ export default function App() {
                 <Database className="w-3 h-3 mr-1" />
                 Wells
               </Button>
-              <div className="hidden sm:flex items-center gap-2 text-slate-300 text-sm">
-                <Clock className="w-4 h-4" />
-                <span>{state.timestamp}</span>
-              </div>
+              <Button 
+                variant="outline" 
+                size="xs" 
+                className="bg-transparent border-red-900/50 text-red-400 hover:bg-red-950 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                onClick={handleLogout}
+              >
+                <LogOut className="w-3 h-3 mr-1" />
+                Logout
+              </Button>
             </div>
-            <ConnectivityIndicator />
+            <div className="flex items-center gap-4">
+              <div className="hidden sm:flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase tracking-wider">
+                <User className="w-3 h-3" />
+                <span>{currentUser?.name} ({currentUser?.role})</span>
+              </div>
+              <ConnectivityIndicator />
+            </div>
           </div>
         </div>
       </header>
@@ -166,9 +201,14 @@ export default function App() {
                 </div>
               </div>
             </div>
-            <div className="sm:hidden flex items-center gap-2 text-slate-500 text-xs pt-2">
-              <Clock className="w-3 h-3" />
-              <span>{state.timestamp}</span>
+            <div className="flex items-center justify-between text-slate-500 text-xs pt-2">
+              <div className="flex items-center gap-2">
+                <Clock className="w-3 h-3" />
+                <span>{state.timestamp}</span>
+              </div>
+              <div className="font-bold text-blue-600 text-[10px] uppercase tracking-widest">
+                Tenant: {useAppStore.getState().tenantId}
+              </div>
             </div>
           </CardContent>
         </Card>

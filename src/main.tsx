@@ -10,29 +10,38 @@ import {
 import App from './App.tsx';
 import WellMasterScreen from './features/wells/WellMasterScreen';
 import './index.css';
-import { seedDatabase } from './db/seed';
-import { initNetworkListeners } from './stores/appStore';
+import { initNetworkListeners, useAppStore } from './stores/appStore';
 
 import TemplateBuilderScreen from './features/templates/TemplateBuilderScreen';
 import InspectionScreen from './features/inspection/InspectionScreen';
 import HistoryScreen from './features/history/HistoryScreen';
+import LoginScreen from './features/auth/LoginScreen';
+import DashboardScreen from './features/dashboard/DashboardScreen';
 
 // Initialize network listeners
 initNetworkListeners();
 
-// --- Placeholder Router Setup ---
+// --- Root Component with Auth Protection ---
+const RootComponent = () => {
+  const isAuthenticated = useAppStore(s => s.isAuthenticated);
+  if (!isAuthenticated) return <LoginScreen />;
+  return <Outlet />;
+};
+
 const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-    </>
-  ),
+  component: RootComponent,
 });
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
   component: App,
+});
+
+const loginRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/login',
+  component: LoginScreen,
 });
 
 const wellsRoute = createRoute({
@@ -59,12 +68,20 @@ const historyRoute = createRoute({
   component: HistoryScreen,
 });
 
+const dashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/dashboard',
+  component: DashboardScreen,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute, 
+  loginRoute,
   wellsRoute, 
   templatesRoute, 
   inspectionRoute,
-  historyRoute
+  historyRoute,
+  dashboardRoute
 ]);
 
 const router = createRouter({ routeTree });
@@ -74,14 +91,8 @@ declare module '@tanstack/react-router' {
     router: typeof router;
   }
 }
-// --- End Placeholder Router Setup ---
 
 const Main = () => {
-  useEffect(() => {
-    // Seed database on startup
-    seedDatabase().catch(err => console.error('Failed to seed database:', err));
-  }, []);
-
   return (
     <StrictMode>
       <RouterProvider router={router} />

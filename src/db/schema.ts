@@ -91,6 +91,20 @@ export interface SyncQueueEntry {
   retryCount: number;
 }
 
+export interface Organization {
+  id?: number;
+  tenantId: string;      // unique slug, e.g. "pioneer-natural"
+  name: string;          // display name, e.g. "Pioneer Natural Resources"
+  createdAt: string;
+}
+
+export interface UserProfile {
+  name: string;
+  role: 'admin' | 'supervisor' | 'inspector';
+  tenantId: string;
+  organizationName: string;
+}
+
 export class CopaDB extends Dexie {
   wells!: Table<Well, number>;
   templates!: Table<Template, number>;
@@ -98,6 +112,7 @@ export class CopaDB extends Dexie {
   inspectionItems!: Table<InspectionItem, number>;
   photos!: Table<Photo, number>;
   syncQueue!: Table<SyncQueueEntry, number>;
+  organizations!: Table<Organization, number>;
 
   constructor() {
     super('CopaDB');
@@ -108,6 +123,9 @@ export class CopaDB extends Dexie {
       inspectionItems: '++id, tenantId, inspectionId, templateItemId',
       photos: '++id, tenantId, inspectionItemId',
       syncQueue: '++id, tenantId, createdAt, status',
+    });
+    this.version(2).stores({
+      organizations: '++id, &tenantId, name'
     });
   }
 }

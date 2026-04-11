@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => {
         strategies: 'injectManifest',
         srcDir: 'src',
         filename: 'sw.ts',
+        injectManifest: {
+          maximumFileSizeToCacheInBytes: 5000000,
+        },
         manifest: {
           name: 'COPA Field Inspection',
           short_name: 'COPA',
