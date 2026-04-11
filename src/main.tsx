@@ -13,6 +13,9 @@ import './index.css';
 import { seedDatabase } from './db/seed';
 import { initNetworkListeners } from './stores/appStore';
 
+import TemplateBuilderScreen from './features/templates/TemplateBuilderScreen';
+import InspectionScreen from './features/inspection/InspectionScreen';
+
 // Initialize network listeners
 initNetworkListeners();
 
@@ -37,7 +40,24 @@ const wellsRoute = createRoute({
   component: WellMasterScreen,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, wellsRoute]);
+const templatesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/templates',
+  component: TemplateBuilderScreen,
+});
+
+const inspectionRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/inspect/$wellId',
+  component: InspectionScreen,
+});
+
+const routeTree = rootRoute.addChildren([
+  indexRoute, 
+  wellsRoute, 
+  templatesRoute, 
+  inspectionRoute
+]);
 
 const router = createRouter({ routeTree });
 

@@ -42,7 +42,7 @@ export interface TemplateCategory {
 export interface Template {
   id?: number;
   tenantId: string;
-  wellType: string;
+  wellType: 'rod_pump' | 'esp' | 'gas_lift' | 'swd';
   version: number;
   name: string;
   categories: TemplateCategory[];

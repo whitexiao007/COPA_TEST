@@ -1,12 +1,14 @@
 import { useState, useMemo } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
+import { useNavigate } from '@tanstack/react-router';
 import { 
   ChevronLeft, 
   Search, 
   MapPin, 
   ChevronRight, 
   X,
-  Info
+  Info,
+  ClipboardCheck
 } from 'lucide-react';
 
 import { db, type Well } from '@/src/db/schema';
@@ -23,6 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 type WellTypeFilter = 'All' | Well['wellType'];
 
 export default function WellMasterScreen() {
+  const navigate = useNavigate();
   const tenantId = useAppStore((state) => state.tenantId);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<WellTypeFilter>('All');
@@ -271,9 +274,21 @@ export default function WellMasterScreen() {
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 space-y-3">
                 <Button 
-                  className="w-full bg-slate-900 font-bold" 
+                  className="w-full bg-blue-600 hover:bg-blue-700 font-bold py-6 text-base"
+                  onClick={() => {
+                    if (selectedWell?.id) {
+                      navigate({ to: `/inspect/${selectedWell.id}` });
+                    }
+                  }}
+                >
+                  <ClipboardCheck className="w-5 h-5 mr-2" />
+                  Start Inspection
+                </Button>
+                <Button 
+                  variant="ghost"
+                  className="w-full font-bold text-slate-500" 
                   onClick={() => setSelectedWell(null)}
                 >
                   Close

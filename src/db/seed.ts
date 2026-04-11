@@ -2,7 +2,7 @@ import { db, type Well, type Template, type TemplateCategory } from './schema';
 
 const TENANT_ID = 'default-tenant';
 
-const createDefaultTemplate = (wellType: string, name: string): Template => {
+const createDefaultTemplate = (wellType: Template['wellType'], name: string): Template => {
   const safetyCategory: TemplateCategory = {
     id: 'safety',
     name: 'Safety',

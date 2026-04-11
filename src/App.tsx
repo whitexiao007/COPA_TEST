@@ -14,7 +14,8 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronRight,
-  Database
+  Database,
+  Layout
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -99,6 +100,15 @@ export default function App() {
           </div>
           <div className="text-right flex flex-col items-end gap-2">
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="xs" 
+                className="bg-transparent border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white h-7 px-2 text-[10px] font-bold uppercase tracking-wider"
+                onClick={() => navigate({ to: '/templates' })}
+              >
+                <Layout className="w-3 h-3 mr-1" />
+                Templates
+              </Button>
               <Button 
                 variant="outline" 
                 size="xs" 
