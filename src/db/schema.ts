@@ -94,7 +94,7 @@ export interface SyncQueueEntry {
 export interface Organization {
   id?: number;
   tenantId: string;      // unique slug, e.g. "pioneer-natural"
-  name: string;          // display name, e.g. "Pioneer Natural Resources"
+  name: string;          // display name, e.g. "Redstone Energy"
   createdAt: string;
 }
 

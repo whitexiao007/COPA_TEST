@@ -1,11 +1,11 @@
 import { ChecklistItem } from './types';
 
 export const WELL_SITES = [
-  "Permian Basin Well #12",
-  "Eagle Ford Site A-4",
-  "Bakken Formation #7",
-  "Marcellus Shale Unit 3",
-  "Haynesville Gas Field #2"
+  "Ironvale Well #12",
+  "Dustridge Site A-4",
+  "Crestfall Formation #7",
+  "Shalerock Unit 3",
+  "Highplain Gas Field #2"
 ];
 
 export const CHECKLIST_ITEMS: ChecklistItem[] = [

@@ -12,9 +12,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const DEMO_ORGS: Organization[] = [
-  { tenantId: 'pioneer-demo', name: 'Pioneer Natural Resources (Demo)', createdAt: new Date().toISOString() },
-  { tenantId: 'oxy-demo', name: 'Occidental Petroleum (Demo)', createdAt: new Date().toISOString() },
-  { tenantId: 'coterra-demo', name: 'Coterra Energy (Demo)', createdAt: new Date().toISOString() }
+  { tenantId: 'redstone-demo', name: 'Redstone Energy (Demo)', createdAt: new Date().toISOString() },
+  { tenantId: 'ironclad-demo', name: 'Ironclad Resources (Demo)', createdAt: new Date().toISOString() },
+  { tenantId: 'vantage-demo', name: 'Vantage Field Operations (Demo)', createdAt: new Date().toISOString() }
 ];
 
 export default function LoginScreen() {
@@ -86,7 +86,7 @@ export default function LoginScreen() {
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">COPA Field Inspection</CardTitle>
           <CardDescription className="text-slate-400 font-medium uppercase tracking-widest text-[10px] mt-1">
-            Permian Basin Edition
+            Western Basin Edition
           </CardDescription>
         </CardHeader>
 

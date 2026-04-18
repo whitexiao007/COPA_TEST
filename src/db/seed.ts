@@ -111,35 +111,35 @@ export const seedDatabase = async (tenantId: string = 'default-tenant') => {
   await db.templates.bulkAdd(templates);
 
   const wells: Well[] = [
-    // Wolfcamp A Pad 1
-    { tenantId, name: 'Wolfcamp A-1H', wellType: 'rod_pump', apiNumber: '42-329-40001-00-00', lat: 31.9973, lng: -102.0779, padName: 'Wolfcamp A Pad 1', field: 'Midland Basin' },
-    { tenantId, name: 'Wolfcamp A-2H', wellType: 'esp', apiNumber: '42-329-40002-00-00', lat: 31.9975, lng: -102.0781, padName: 'Wolfcamp A Pad 1', field: 'Midland Basin' },
-    { tenantId, name: 'Wolfcamp A-3H', wellType: 'rod_pump', apiNumber: '42-329-40003-00-00', lat: 31.9977, lng: -102.0783, padName: 'Wolfcamp A Pad 1', field: 'Midland Basin' },
-    { tenantId, name: 'Wolfcamp A-4H', wellType: 'gas_lift', apiNumber: '42-329-40004-00-00', lat: 31.9979, lng: -102.0785, padName: 'Wolfcamp A Pad 1', field: 'Midland Basin' },
-    
-    // Spraberry Pad 2
-    { tenantId, name: 'Spraberry 1H', wellType: 'esp', apiNumber: '42-329-40011-00-00', lat: 32.1123, lng: -101.9456, padName: 'Spraberry Pad 2', field: 'Midland Basin' },
-    { tenantId, name: 'Spraberry 2H', wellType: 'rod_pump', apiNumber: '42-329-40012-00-00', lat: 32.1125, lng: -101.9458, padName: 'Spraberry Pad 2', field: 'Midland Basin' },
-    { tenantId, name: 'Spraberry 3H', wellType: 'swd', apiNumber: '42-329-40013-00-00', lat: 32.1127, lng: -101.9460, padName: 'Spraberry Pad 2', field: 'Midland Basin' },
-    { tenantId, name: 'Spraberry 4H', wellType: 'gas_lift', apiNumber: '42-329-40014-00-00', lat: 32.1129, lng: -101.9462, padName: 'Spraberry Pad 2', field: 'Midland Basin' },
+    // Ironvale Pad 1
+    { tenantId, name: 'Ironvale A-1H', wellType: 'rod_pump', apiNumber: '42-329-40001-00-00', lat: 31.9973, lng: -102.0779, padName: 'Ironvale Pad 1', field: 'Ironvale Basin' },
+    { tenantId, name: 'Ironvale A-2H', wellType: 'esp', apiNumber: '42-329-40002-00-00', lat: 31.9975, lng: -102.0781, padName: 'Ironvale Pad 1', field: 'Ironvale Basin' },
+    { tenantId, name: 'Ironvale A-3H', wellType: 'rod_pump', apiNumber: '42-329-40003-00-00', lat: 31.9977, lng: -102.0783, padName: 'Ironvale Pad 1', field: 'Ironvale Basin' },
+    { tenantId, name: 'Ironvale A-4H', wellType: 'gas_lift', apiNumber: '42-329-40004-00-00', lat: 31.9979, lng: -102.0785, padName: 'Ironvale Pad 1', field: 'Ironvale Basin' },
 
-    // Delaware Pad 3
-    { tenantId, name: 'Delaware 1H', wellType: 'esp', apiNumber: '42-389-40021-00-00', lat: 31.6543, lng: -103.1234, padName: 'Delaware Pad 3', field: 'Delaware Basin' },
-    { tenantId, name: 'Delaware 2H', wellType: 'rod_pump', apiNumber: '42-389-40022-00-00', lat: 31.6545, lng: -103.1236, padName: 'Delaware Pad 3', field: 'Delaware Basin' },
-    { tenantId, name: 'Delaware 3H', wellType: 'esp', apiNumber: '42-389-40023-00-00', lat: 31.6547, lng: -103.1238, padName: 'Delaware Pad 3', field: 'Delaware Basin' },
-    { tenantId, name: 'Delaware 4H', wellType: 'gas_lift', apiNumber: '42-389-40024-00-00', lat: 31.6549, lng: -103.1240, padName: 'Delaware Pad 3', field: 'Delaware Basin' },
+    // Dustridge Pad 2
+    { tenantId, name: 'Dustridge 1H', wellType: 'esp', apiNumber: '42-329-40011-00-00', lat: 32.1123, lng: -101.9456, padName: 'Dustridge Pad 2', field: 'Ironvale Basin' },
+    { tenantId, name: 'Dustridge 2H', wellType: 'rod_pump', apiNumber: '42-329-40012-00-00', lat: 32.1125, lng: -101.9458, padName: 'Dustridge Pad 2', field: 'Ironvale Basin' },
+    { tenantId, name: 'Dustridge 3H', wellType: 'swd', apiNumber: '42-329-40013-00-00', lat: 32.1127, lng: -101.9460, padName: 'Dustridge Pad 2', field: 'Ironvale Basin' },
+    { tenantId, name: 'Dustridge 4H', wellType: 'gas_lift', apiNumber: '42-329-40014-00-00', lat: 32.1129, lng: -101.9462, padName: 'Dustridge Pad 2', field: 'Ironvale Basin' },
 
-    // Bone Spring Pad 4
-    { tenantId, name: 'Bone Spring 1H', wellType: 'rod_pump', apiNumber: '42-389-40031-00-00', lat: 31.7890, lng: -103.2345, padName: 'Bone Spring Pad 4', field: 'Delaware Basin' },
-    { tenantId, name: 'Bone Spring 2H', wellType: 'swd', apiNumber: '42-389-40032-00-00', lat: 31.7892, lng: -103.2347, padName: 'Bone Spring Pad 4', field: 'Delaware Basin' },
-    { tenantId, name: 'Bone Spring 3H', wellType: 'esp', apiNumber: '42-389-40033-00-00', lat: 31.7894, lng: -103.2349, padName: 'Bone Spring Pad 4', field: 'Delaware Basin' },
-    { tenantId, name: 'Bone Spring 4H', wellType: 'rod_pump', apiNumber: '42-389-40034-00-00', lat: 31.7896, lng: -103.2351, padName: 'Bone Spring Pad 4', field: 'Delaware Basin' },
+    // Crestfall Pad 3
+    { tenantId, name: 'Crestfall 1H', wellType: 'esp', apiNumber: '42-389-40021-00-00', lat: 31.6543, lng: -103.1234, padName: 'Crestfall Pad 3', field: 'Crestfall Basin' },
+    { tenantId, name: 'Crestfall 2H', wellType: 'rod_pump', apiNumber: '42-389-40022-00-00', lat: 31.6545, lng: -103.1236, padName: 'Crestfall Pad 3', field: 'Crestfall Basin' },
+    { tenantId, name: 'Crestfall 3H', wellType: 'esp', apiNumber: '42-389-40023-00-00', lat: 31.6547, lng: -103.1238, padName: 'Crestfall Pad 3', field: 'Crestfall Basin' },
+    { tenantId, name: 'Crestfall 4H', wellType: 'gas_lift', apiNumber: '42-389-40024-00-00', lat: 31.6549, lng: -103.1240, padName: 'Crestfall Pad 3', field: 'Crestfall Basin' },
 
-    // Central Basin Pad 5
-    { tenantId, name: 'CBP 1H', wellType: 'gas_lift', apiNumber: '42-227-40041-00-00', lat: 31.5432, lng: -102.5678, padName: 'Central Basin Pad 5', field: 'Central Basin Platform' },
-    { tenantId, name: 'CBP 2H', wellType: 'rod_pump', apiNumber: '42-227-40042-00-00', lat: 31.5434, lng: -102.5680, padName: 'Central Basin Pad 5', field: 'Central Basin Platform' },
-    { tenantId, name: 'CBP 3H', wellType: 'swd', apiNumber: '42-227-40043-00-00', lat: 31.5436, lng: -102.5682, padName: 'Central Basin Pad 5', field: 'Central Basin Platform' },
-    { tenantId, name: 'CBP 4H', wellType: 'esp', apiNumber: '42-227-40044-00-00', lat: 31.5438, lng: -102.5684, padName: 'Central Basin Pad 5', field: 'Central Basin Platform' }
+    // Shalerock Pad 4
+    { tenantId, name: 'Shalerock 1H', wellType: 'rod_pump', apiNumber: '42-389-40031-00-00', lat: 31.7890, lng: -103.2345, padName: 'Shalerock Pad 4', field: 'Crestfall Basin' },
+    { tenantId, name: 'Shalerock 2H', wellType: 'swd', apiNumber: '42-389-40032-00-00', lat: 31.7892, lng: -103.2347, padName: 'Shalerock Pad 4', field: 'Crestfall Basin' },
+    { tenantId, name: 'Shalerock 3H', wellType: 'esp', apiNumber: '42-389-40033-00-00', lat: 31.7894, lng: -103.2349, padName: 'Shalerock Pad 4', field: 'Crestfall Basin' },
+    { tenantId, name: 'Shalerock 4H', wellType: 'rod_pump', apiNumber: '42-389-40034-00-00', lat: 31.7896, lng: -103.2351, padName: 'Shalerock Pad 4', field: 'Crestfall Basin' },
+
+    // Highplain Pad 5
+    { tenantId, name: 'Highplain 1H', wellType: 'gas_lift', apiNumber: '42-227-40041-00-00', lat: 31.5432, lng: -102.5678, padName: 'Highplain Pad 5', field: 'Highplain Platform' },
+    { tenantId, name: 'Highplain 2H', wellType: 'rod_pump', apiNumber: '42-227-40042-00-00', lat: 31.5434, lng: -102.5680, padName: 'Highplain Pad 5', field: 'Highplain Platform' },
+    { tenantId, name: 'Highplain 3H', wellType: 'swd', apiNumber: '42-227-40043-00-00', lat: 31.5436, lng: -102.5682, padName: 'Highplain Pad 5', field: 'Highplain Platform' },
+    { tenantId, name: 'Highplain 4H', wellType: 'esp', apiNumber: '42-227-40044-00-00', lat: 31.5438, lng: -102.5684, padName: 'Highplain Pad 5', field: 'Highplain Platform' }
   ];
 
   await db.wells.bulkAdd(wells);
